@@ -1,0 +1,539 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>MathGenius AI 3.0</title>
+<style>
+:root{--bg:#0a1020;--panel:#121c30;--line:#2b3b59;--text:#eef4ff;--muted:#9aacc8;--blue:#78adff;--cyan:#70e1e8;--green:#49d6a0;--red:#ff8298}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1b3155 0,transparent 42%),var(--bg);color:var(--text);font-family:Arial,"Microsoft YaHei",sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:26px 17px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:25px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#5496ff,#8065ed);display:grid;place-items:center;font-size:27px}
+.brand h1{font-size:21px;margin:0}
+.brand p{font-size:11px;color:var(--muted);letter-spacing:1.7px;margin:4px 0 0}
+.status{font-size:11px;border:1px solid #315c50;color:#8be5c0;background:#102b29;padding:7px 10px;border-radius:99px}
+.hero{margin-bottom:21px}
+.hero h2{font-size:clamp(25px,5vw,38px);margin:0 0 8px}
+.hero h2 span{background:linear-gradient(90deg,#8bbcff,#70e2e8);-webkit-background-clip:text;color:transparent}
+.hero p{margin:0;color:var(--muted);line-height:1.7;font-size:14px}
+.layout{display:grid;grid-template-columns:345px minmax(0,1fr);gap:17px;align-items:start}
+.card{background:linear-gradient(155deg,#162239,#111a2d);border:1px solid var(--line);border-radius:19px;padding:19px;box-shadow:0 14px 42px #0002}
+.card h3{font-size:15px;margin:0 0 16px;display:flex;align-items:center;gap:9px}
+.num{width:25px;height:25px;border-radius:8px;background:#233b60;color:#9cc4ff;display:grid;place-items:center;font-size:11px}
+.field{margin-bottom:14px}
+.field label,.answer-label{display:block;color:#b7c6dd;font-size:12px;margin-bottom:8px}
+.field input,.field select,.answer-input{width:100%;padding:12px 13px;border-radius:10px;border:1px solid #354968;background:#0b1527;color:var(--text);font-size:14px;outline:none}
+.field input:focus,.field select:focus,.answer-input:focus{border-color:var(--blue)}
+.field input::placeholder{color:#657795}
+.help{font-size:11px;color:#8294b1;line-height:1.55;margin-top:6px}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.level{background:#0c1729;color:#c5d3e8;border:1px solid #354968;border-radius:9px;padding:10px 4px;font-size:12px}
+.level.active{background:#1c3a65;border-color:#78adff;color:#e6f1ff}
+.primary,.secondary,.ghost{border:0;border-radius:11px;padding:12px 14px;font-weight:700;cursor:pointer;font-size:13px}
+.primary{width:100%;background:linear-gradient(100deg,#8bbcff,#70e2e8);color:#081528}
+.secondary{background:#244575;border:1px solid #416a9e;color:#e4efff}
+.ghost{background:#18263d;border:1px solid #344968;color:#b9c9df}
+.full{width:100%;margin-top:9px}
+.source-box{background:#0d192b;border:1px solid #293c5b;border-radius:12px;padding:12px;margin-top:14px}
+.source-title{font-size:12px;color:#d9e7fb;font-weight:700}
+.source-desc{font-size:11px;color:#91a3bf;line-height:1.55;margin:6px 0 9px}
+.source-line{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:#9db0cb}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:15px}
+.stat{background:#0d1729;border:1px solid #273956;border-radius:12px;padding:11px}
+.stat small{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}
+.stat strong{font-size:21px}
+.ok{color:var(--green)}.no{color:var(--red)}
+.question-card{min-height:350px;display:flex;flex-direction:column}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qmeta{font-size:11px;color:#a6b9d4}
+.chip{font-size:10px;padding:6px 9px;border-radius:99px;background:#2b2341;color:#ddc5ff;border:1px solid #57427b}
+.qtext{font-size:clamp(18px,2.7vw,24px);line-height:1.75;font-weight:620;margin:21px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.answer-area{margin-top:auto}
+.answer-row{display:flex;gap:8px}
+.answer-row input{flex:1;min-width:0}
+.answer-row button{white-space:nowrap}
+.feedback{display:none;margin-top:13px;border-radius:12px;padding:13px 14px;font-size:13px;line-height:1.75;white-space:pre-wrap}
+.feedback.show{display:block}
+.feedback.good{background:#103329;border:1px solid #287456;color:#b1f4d7}
+.feedback.bad{background:#351d2a;border:1px solid #7a394c;color:#ffc5ce}
+.history{margin-top:15px}
+.history-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.history-head h3{margin:0}
+.history-list{display:grid;gap:7px}
+.history-item{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:9px;background:#0d1729;border:1px solid #263956;font-size:11px}
+.history-item span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b9c9df}
+.muted{color:#8193af;font-size:11px;line-height:1.6}
+.foot{text-align:center;color:#71839f;font-size:10px;line-height:1.7;margin-top:18px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.wrap{padding:19px 12px 45px}.question-card{min-height:315px}}
+@media(max-width:430px){.stats{grid-template-columns:repeat(2,1fr)}.answer-row{flex-direction:column}.answer-row button{width:100%}.levels{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="brand">
+  <div class="logo">∑</div>
+  <div><h1>MathGenius AI 3.0</h1><p>COMPREHENSIVE MATH PRACTICE</p></div>
+ </div>
+ <div class="status" id="status">● 本地题库已就绪</div>
+</header>
+
+<section class="hero">
+ <h2>不止会做题，<span>更要会思考。</span></h2>
+ <p>覆盖小学到大学的数学练习。支持本地题库和在线开放题库。</p>
+</section>
+
+<main class="layout">
+<section class="card">
+ <h3><span class="num">01</span> 训练设置</h3>
+ <div class="field">
+  <label for="topic">知识点 / 题目类型</label>
+  <input id="topic" list="topics" placeholder="例如：分数、方程、三角函数、导数">
+  <datalist id="topics">
+   <option value="四则运算"><option value="分数"><option value="小数">
+   <option value="百分数"><option value="比例"><option value="平均数">
+   <option value="面积"><option value="周长"><option value="方程">
+   <option value="勾股定理"><option value="因式分解"><option value="二次函数">
+   <option value="数列"><option value="概率"><option value="三角函数">
+   <option value="导数"><option value="积分"><option value="极限"><option value="矩阵">
+  </datalist>
+  <div class="help">留空则按学习阶段随机抽取知识点。</div>
+ </div>
+
+ <div class="field">
+  <label for="stage">学习阶段</label>
+  <select id="stage">
+   <option>小学</option><option selected>初中</option><option>高中</option><option>大学</option>
+  </select>
+ </div>
+
+ <div class="field">
+  <label>题目难度</label>
+  <div class="levels">
+   <button class="level" data-level="简单">简单</button>
+   <button class="level active" data-level="中等">中等</button>
+   <button class="level" data-level="困难">困难</button>
+   <button class="level" data-level="专家">专家</button>
+  </div>
+ </div>
+
+ <button class="primary" id="generate">✦ 生成一道新题</button>
+
+ <div class="source-box">
+  <div class="source-title">在线开放题库 · GSM8K</div>
+  <div class="source-desc">
+   加载 OpenAI 发布的英文多步骤数学应用题数据集。
+   数据集使用 MIT 许可，在线加载后可以随机抽题。
+  </div>
+  <div class="source-line">
+   <span id="onlineCount">尚未加载在线题目</span><span>MIT License</span>
+  </div>
+  <button class="secondary full" id="loadOnline">↓ 在线加载 GSM8K 题库</button>
+  <div class="help">首次加载需要网络。加载失败时仍可使用内置题库。</div>
+ </div>
+</section>
+
+<section>
+ <div class="stats">
+  <div class="stat"><small>答题总数</small><strong id="total">0</strong></div>
+  <div class="stat"><small>答对题数</small><strong id="correct" class="ok">0</strong></div>
+  <div class="stat"><small>正确率</small><strong id="rate">—</strong></div>
+  <div class="stat"><small>当前连对</small><strong id="streak">0</strong></div>
+ </div>
+
+ <div class="card question-card">
+  <div class="qtop">
+   <div class="qmeta" id="qmeta">等待生成题目</div>
+   <div class="chip" id="qsource">LOCAL BANK</div>
+  </div>
+  <div id="qtext" class="qtext">先在左侧选择学习阶段、知识点和难度，再点击「生成一道新题」。</div>
+  <div class="answer-area">
+   <label class="answer-label" for="answer">输入你的答案</label>
+   <div class="answer-row">
+    <input class="answer-input" id="answer" placeholder="数字、分数或小数">
+    <button class="secondary" id="submit">提交答案</button>
+   </div>
+   <div class="help">支持整数、小数、分数，例如 3/4。方程题填写未知数。</div>
+  </div>
+  <div id="feedback" class="feedback"></div>
+ </div>
+
+ <div class="card history">
+  <div class="history-head">
+   <h3>最近答题记录</h3>
+   <button class="ghost" id="clear" style="padding:7px 10px;font-size:10px">清空记录</button>
+  </div>
+  <div id="history" class="history-list">
+   <div class="muted">完成答题后，这里会显示最近 8 道题的结果。</div>
+  </div>
+ </div>
+</section>
+</main>
+
+<div class="foot">
+ MathGenius AI 3.0 · 本地中文题目为程序生成练习题。<br>
+ 在线来源：OpenAI GSM8K · MIT License ·
+ https://github.com/openai/grade-school-math
+</div>
+</div>
+
+<script>
+'use strict';
+
+const $=id=>document.getElementById(id);
+let difficulty='中等',current=null,total=0,correct=0,streak=0;
+let onlineQuestions=[],history=[];
+
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[rand(0,a.length-1)];
+const fmt=n=>Number.isInteger(n)?String(n):String(Number(n.toFixed(5)));
+const dval=()=>({简单:1,中等:2,困难:3,专家:4}[difficulty]);
+
+function q(type,text,answer,explain,stage){
+ return {type,text,answer:Number(answer),explain,stage:stage||$('stage').value,source:'本地中文题库'};
+}
+
+function makeLocalQuestion(){
+ const stage=$('stage').value,d=dval();
+ let type=$('topic').value.trim().toLowerCase();
+
+ if(!type){
+  const groups={
+   '小学':['四则运算','分数','小数','百分数','比例','平均数','面积','周长'],
+   '初中':['有理数','方程','比例','百分数','勾股定理','面积','因式分解','一次函数'],
+   '高中':['二次函数','数列','概率','三角函数','解析几何','方程','导数基础'],
+   '大学':['导数','积分','极限','矩阵','概率','函数','线性代数']
+  };
+  type=pick(groups[stage]);
+ }
+
+ const advanced=['导数','积分','极限','矩阵','线性代数'];
+ if(stage!=='大学'&&advanced.some(t=>type.includes(t))){
+  type=stage==='高中'?'二次函数':'方程';
+ }
+ if(stage==='小学'&&['方程','勾股','因式','函数','数列','概率','三角','解析'].some(t=>type.includes(t))){
+  type='分数';
+ }
+
+ let a,b,c,x,n;
+
+ if(type.includes('分数')){
+  let den1=pick([2,3,4,5,6,8]),den2=pick([2,3,4,5,6,8]);
+  let num1=rand(1,den1-1),num2=rand(1,den2-1);
+  let op=pick(['+','−']);
+  let ans=op==='+'?num1/den1+num2/den2:num1/den1-num2/den2;
+  return q('分数运算',`计算：${num1}/${den1} ${op} ${num2}/${den2} = ?`,ans,
+   `通分后计算分子，分母保持相同。\n${num1}/${den1} ${op} ${num2}/${den2} = ${fmt(ans)}。`);
+ }
+
+ if(type.includes('小数')){
+  a=rand(11,99)/10;b=rand(11,99)/10;
+  let op=pick(['+','−','×']);
+  let ans=op==='+'?a+b:op==='−'?a-b:a*b;
+  return q('小数运算',`计算：${a} ${op} ${b} = ?`,ans,
+   `${a} ${op} ${b} = ${fmt(ans)}。`);
+ }
+
+ if(type.includes('百分')){
+  a=rand(80,500)*d;b=pick([5,10,12,15,20,25,30,40]);
+  return q('百分数应用',`一件商品原价 ${a} 元，打 ${100-b}% 折，现价是多少元？`,
+   a*(1-b/100),`折后价格 = 原价 × 折扣率\n= ${a} × ${100-b}% = ${fmt(a*(1-b/100))} 元。`);
+ }
+
+ if(type.includes('比例')){
+  a=rand(2,8);b=rand(2,9);c=rand(3,12);
+  return q('比例',`已知 ${a}:${b} = ${c}:x，求 x。`,b*c/a,
+   `交叉相乘：${a}x = ${b} × ${c}。\nx = ${b*c}/${a} = ${fmt(b*c/a)}。`);
+ }
+
+ if(type.includes('平均')){
+  a=rand(60,95);b=rand(60,95);c=rand(60,95);
+  return q('平均数',`三次测验成绩分别为 ${a}、${b}、${c} 分，平均分是多少？`,
+   (a+b+c)/3,`平均数 = 总和 ÷ 个数\n= (${a}+${b}+${c}) ÷ 3 = ${fmt((a+b+c)/3)} 分。`);
+ }
+
+ if(type.includes('周长')){
+  a=rand(3,20*d);b=rand(3,15*d);
+  return q('几何周长',`长方形长 ${a} cm、宽 ${b} cm，求周长。`,
+   2*(a+b),`周长 = 2 × (长 + 宽)\n= 2 × (${a}+${b}) = ${2*(a+b)} cm。`);
+ }
+
+ if(type.includes('面积')||type.includes('几何')){
+  let shape=pick(['rect','tri','circle']);
+  if(shape==='rect'){
+   a=rand(3,15*d);b=rand(2,12*d);
+   return q('几何面积',`长方形长 ${a} cm、宽 ${b} cm，求面积。`,a*b,
+    `面积 = 长 × 宽 = ${a} × ${b} = ${a*b} cm²。`);
+  }
+  if(shape==='tri'){
+   a=rand(4,18*d);b=rand(3,14*d);
+   return q('三角形面积',`三角形底边 ${a} cm，高 ${b} cm，求面积。`,a*b/2,
+    `面积 = 底 × 高 ÷ 2 = ${a} × ${b} ÷ 2 = ${a*b/2} cm²。`);
+  }
+  a=rand(2,8*d);
+  return q('圆面积',`圆半径为 ${a} cm，取 π=3.14，求面积。`,
+   Number((3.14*a*a).toFixed(2)),`面积 = πr² = 3.14 × ${a}² = ${fmt(3.14*a*a)} cm²。`);
+ }
+
+ if(type.includes('勾股')){
+  let t=pick([[3,4,5],[5,12,13],[8,15,17],[7,24,25],[9,12,15]]);
+  return q('勾股定理',`直角三角形两条直角边为 ${t[0]} cm 和 ${t[1]} cm，求斜边。`,
+   t[2],`根据勾股定理 c²=a²+b²。\nc²=${t[0]}²+${t[1]}²=${t[2]*t[2]}，所以 c=${t[2]} cm。`);
+ }
+
+ if(type.includes('因式')){
+  a=rand(2,9);b=rand(2,9);
+  return q('因式分解',`将 x² + ${a+b}x + ${a*b} 分解因式。`,a*b,
+   `寻找两个数，它们的和为 ${a+b}、积为 ${a*b}：${a} 和 ${b}。\n因此 x²+${a+b}x+${a*b}=(x+${a})(x+${b})。`);
+ }
+
+ if(type.includes('方程')){
+  a=rand(2,7*d);x=rand(-9,12);b=rand(-15,15);c=a*x+b;
+  return q('一元一次方程',`解方程：${a}x ${b>=0?'+':'−'} ${Math.abs(b)} = ${c}。求 x。`,x,
+   `移项：${a}x = ${c} ${b>=0?'−':'+'} ${Math.abs(b)} = ${a*x}。\n两边除以 ${a}，得到 x=${x}。`);
+ }
+
+ if(type.includes('一次函数')){
+  a=rand(2,6*d);b=rand(-9,9);x=rand(-5,6);
+  return q('一次函数',`已知 y=${a}x${b>=0?'+':''}${b}，当 x=${x} 时，求 y。`,a*x+b,
+   `代入 x=${x}：y=${a}×(${x})${b>=0?'+':''}${b}=${a*x+b}。`);
+ }
+
+ if(type.includes('二次')||type.includes('解析几何')){
+  a=rand(-4,4);b=rand(-4,4);
+  if(a===b)b+=2;
+  let sum=a+b,prod=a*b;
+  return q('二次方程',`方程 x² ${-sum>=0?'+':'−'} ${Math.abs(sum)}x ${prod>=0?'+':'−'} ${Math.abs(prod)}=0，求较大的根。`,
+   Math.max(a,b),`因式分解为 (x-${a})(x-${b})=0。\n两个根为 ${a} 和 ${b}，较大的根为 ${Math.max(a,b)}。`);
+ }
+
+ if(type.includes('数列')){
+  a=rand(1,12);b=rand(2,7*d);n=rand(6,15);
+  return q('等差数列',`等差数列首项 a₁=${a}，公差 d=${b}，求第 ${n} 项。`,
+   a+(n-1)*b,`通项公式 aₙ=a₁+(n−1)d。\na${n}=${a}+(${n}−1)×${b}=${a+(n-1)*b}。`);
+ }
+
+ if(type.includes('概率')){
+  a=rand(2,9);b=rand(2,9);
+  return q('古典概型',`袋中有 ${a} 个红球和 ${b} 个蓝球，随机取 1 个，取到红球的概率是多少？`,
+   a/(a+b),`P(红球)=红球数÷总球数=${a}/${a+b}=${fmt(a/(a+b))}。`);
+ }
+
+ if(type.includes('三角')){
+  const t=pick([{name:'sin',deg:30,val:.5},{name:'cos',deg:60,val:.5},{name:'tan',deg:45,val:1},{name:'sin',deg:90,val:1},{name:'cos',deg:0,val:1}]);
+  return q('三角函数',`求 ${t.name}(${t.deg}°) 的值。`,t.val,
+   `根据特殊角三角函数值表，${t.name}(${t.deg}°)=${t.val}。`);
+ }
+
+ if(type.includes('导数')){
+  n=rand(2,5);x=rand(1,4);a=rand(1,5);
+  return q('导数',`函数 f(x)=${a}x^${n}，求 f'(${x})。`,
+   a*n*Math.pow(x,n-1),`幂函数求导：(axⁿ)'=anxⁿ⁻¹。\nf'(${x})=${a}×${n}×${x}^${n-1}=${a*n*Math.pow(x,n-1)}。`);
+ }
+
+ if(type.includes('积分')){
+  a=rand(1,5);b=rand(2,5);
+  return q('定积分',`计算定积分 ∫₀^${b} ${a}x dx。`,a*b*b/2,
+   `原函数为 (${a}/2)x²。\n代入上下限：(${a}/2)×${b}²−0=${a*b*b/2}。`);
+ }
+
+ if(type.includes('极限')){
+  a=rand(2,8);b=rand(1,6);
+  return q('极限',`求 lim(x→${a}) (${b}x + 3) 的值。`,b*a+3,
+   `多项式函数在该点连续，直接代入：${b}×${a}+3=${b*a+3}。`);
+ }
+
+ if(type.includes('矩阵')||type.includes('线性代数')){
+  a=rand(1,5);b=rand(1,5);c=rand(1,5);n=rand(1,5);
+  return q('矩阵行列式',`矩阵 A=[[${a}, ${b}], [${c}, ${n}]]，求 det(A)。`,a*n-b*c,
+   `二阶行列式 det(A)=主对角线乘积−副对角线乘积。\n=${a}×${n}−${b}×${c}=${a*n-b*c}。`);
+ }
+
+ a=rand(12,60*d);b=rand(3,20*d);c=rand(2,9);
+ if(d===1){
+  return q('四则运算',`计算：${a} + ${b} − ${c} = ?`,a+b-c,
+   `${a}+${b}−${c}=${a+b-c}。`);
+ }
+ if(d===2){
+  return q('混合运算',`计算：(${a} − ${b}) × ${c} = ?`,(a-b)*c,
+   `先算括号：${a}−${b}=${a-b}。\n再乘：${a-b}×${c}=${(a-b)*c}。`);
+ }
+ return q('混合运算',`计算：${a} × ${c} + ${b} × 2 = ?`,a*c+b*2,
+  `先算乘法：${a}×${c}=${a*c}，${b}×2=${b*2}。\n再相加：${a*c}+${b*2}=${a*c+b*2}。`);
+}
+
+function parseFinalAnswer(text){
+ const match=text.match(/####\s*([-+]?\d[\d,]*(?:\.\d+)?)/);
+ if(match)return Number(match[1].replace(/,/g,''));
+ const all=text.match(/[-+]?\d+(?:\.\d+)?/g);
+ return all?Number(all[all.length-1]):NaN;
+}
+
+function cleanSolution(s){
+ return s.replace(/<<([^<>]+)>>/g,'$1')
+  .replace(/####\s*[-+]?\d[\d,]*(?:\.\d+)?/g,'').trim();
+}
+
+async function loadOnline(){
+ const btn=$('loadOnline');
+ btn.disabled=true;
+ btn.textContent='正在加载，请稍候…';
+ $('status').textContent='● 正在连接在线题库';
+
+ const urls=[
+  'https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/test.jsonl',
+  'https://raw.githubusercontent.com/openai/grade-school-math/main/grade_school_math/data/test.jsonl'
+ ];
+
+ let data=null;
+ for(const url of urls){
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const text=await response.text();
+   data=text.split(/\r?\n/).filter(Boolean)
+    .map(line=>JSON.parse(line))
+    .filter(x=>x.question&&x.answer);
+   if(data.length)break;
+  }catch(e){data=null;}
+ }
+
+ if(data&&data.length){
+  onlineQuestions=data;
+  $('onlineCount').textContent=`已加载 ${data.length.toLocaleString()} 道真实题目`;
+  $('status').textContent='● 在线题库已连接';
+  btn.textContent='✓ 在线题库已加载';
+ }else{
+  $('onlineCount').textContent='加载失败，可检查网络后重试';
+  $('status').textContent='● 当前使用本地题库';
+  btn.textContent='重新加载在线题库';
+ }
+ btn.disabled=false;
+}
+
+function newQuestion(){
+ const topic=$('topic').value.trim().toLowerCase();
+ const useOnline=onlineQuestions.length>0&&
+  (topic===''||topic.includes('应用题')||topic.includes('gsm8k'));
+
+ if(useOnline){
+  const item=pick(onlineQuestions);
+  const final=parseFinalAnswer(item.answer);
+  if(Number.isFinite(final)){
+   current={
+    type:'多步骤应用题',
+    text:item.question,
+    answer:final,
+    explain:cleanSolution(item.answer),
+    stage:'小学 / 初中',
+    source:'OpenAI GSM8K（在线）'
+   };
+  }else current=makeLocalQuestion();
+ }else current=makeLocalQuestion();
+
+ $('qmeta').textContent=`${current.stage} · ${current.type}`;
+ $('qsource').textContent=current.source.includes('GSM8K')?'GSM8K · MIT':'本地题库';
+ $('qtext').textContent=current.text;
+ $('answer').value='';
+ $('answer').disabled=false;
+ $('submit').disabled=false;
+ $('feedback').className='feedback';
+ $('feedback').textContent='';
+ $('answer').focus();
+}
+
+function parseUserAnswer(v){
+ v=v.trim().replace(/,/g,'').replace(/\s/g,'');
+ if(/^[-+]?\d+\/[-+]?\d+$/.test(v)){
+  const p=v.split('/').map(Number);
+  return p[1]===0?NaN:p[0]/p[1];
+ }
+ return Number(v);
+}
+
+function submit(){
+ if(!current){alert('请先生成一道题目。');return;}
+ if($('submit').disabled)return;
+
+ const raw=$('answer').value;
+ if(!raw.trim()){
+  alert('请先输入答案。');
+  $('answer').focus();
+  return;
+ }
+
+ const value=parseUserAnswer(raw);
+ if(!Number.isFinite(value)){
+  alert('答案格式不正确，请输入数字或分数，例如 0.5 或 1/2。');
+  return;
+ }
+
+ const ok=Math.abs(value-current.answer)<1e-4;
+ total++;
+ if(ok){correct++;streak++;}else streak=0;
+
+ $('total').textContent=total;
+ $('correct').textContent=correct;
+ $('rate').textContent=Math.round(correct/total*100)+'%';
+ $('streak').textContent=streak;
+
+ const fb=$('feedback');
+ fb.className='feedback show '+(ok?'good':'bad');
+ fb.textContent=(ok?'✓ 恭喜你，过！':'✕ 很遗憾，不通过！')+
+  '\n'+(ok?'回答正确，继续保持。':'正确答案：'+fmt(current.answer))+
+  '\n\n解题解析：\n'+(current.explain||'本题标准答案为 '+fmt(current.answer))+
+  '\n\n题目来源：'+current.source;
+
+ history.unshift({text:current.text,ok,source:current.source});
+ history=history.slice(0,8);
+ renderHistory();
+
+ $('answer').disabled=true;
+ $('submit').disabled=true;
+}
+
+function renderHistory(){
+ $('history').innerHTML='';
+ if(!history.length){
+  $('history').textContent='暂无答题记录';
+  return;
+ }
+ history.forEach(item=>{
+  const row=document.createElement('div');
+  row.className='history-item';
+  const span=document.createElement('span');
+  span.textContent=item.text;
+  const result=document.createElement('b');
+  result.className=item.ok?'ok':'no';
+  result.textContent=item.ok?'通过':'未通过';
+  row.append(span,result);
+  $('history').appendChild(row);
+ });
+}
+
+document.querySelectorAll('.level').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+  document.querySelectorAll('.level').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  difficulty=btn.dataset.level;
+ });
+});
+
+$('generate').addEventListener('click',newQuestion);
+$('submit').addEventListener('click',submit);
+$('answer').addEventListener('keydown',e=>{
+ if(e.key==='Enter')submit();
+});
+$('loadOnline').addEventListener('click',loadOnline);
+$('clear').addEventListener('click',()=>{
+ history=[];
+ renderHistory();
+});
+</script>
+</body>
+</html>
